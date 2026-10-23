@@ -38,11 +38,8 @@ button{border:0;border-radius:10px;padding:11px 16px;font-weight:700;cursor:poin
 <h2>Administrator — Personal Invitation Links</h2>
 <p class="help">This is <b>Form 1 — Resource Person Availability & Contribution Planner</b>. Form 2 is hosted separately in its own repository.</p>
 <div class="grid">
-<div><label>Resource Person</label>
-<select id="adminPerson"><option value="">Select Resource Person</option>
-<option>Dr. Mamnoon Fatima</option><option>DR. UDAY KUMAR MISHRA</option>
-<option>DR. DINANATH MISHRA</option><option>Dr. Sachin Pardeshi</option>
-<option>Dr. Deepti Pandya</option><option>Internal Speaker</option><option>Guest Speaker</option></select></div>
+<div><label>Speaker Name</label>
+<input id="adminPerson" type="text" placeholder="Type the speaker's full name"></div>
 <div><label>Personal Link</label><input id="personalLink" readonly placeholder="Generate a personal link"></div>
 </div>
 <div class="actions">
@@ -203,25 +200,28 @@ function applyRP(){
  const rp=new URLSearchParams(location.search).get('rp');
  document.getElementById('adminPanel').style.display=rp?'none':'block';
  if(!rp){syncNameField();return;}
- const sel=document.getElementById('nameSelect'), opt=[...sel.options].find(o=>o.value.toLowerCase()===rp.toLowerCase());
- if(opt){
+ const sel=document.getElementById('nameSelect'), custom=document.getElementById('customName'), opt=[...sel.options].find(o=>o.value.toLowerCase()===rp.toLowerCase());
+ if(opt && opt.value!=='Internal Speaker' && opt.value!=='Guest Speaker'){
    sel.value=opt.value;
    sel.disabled=true;
-   if(opt.value==='Internal Speaker' || opt.value==='Guest Speaker'){
-     document.getElementById('customName').style.display='block';
-     document.getElementById('customName').required=true;
-   }
+ }else{
+   sel.value='Guest Speaker';
+   sel.disabled=true;
+   custom.style.display='block';
+   custom.required=true;
+   custom.value=rp;
+   custom.placeholder='Speaker Name';
  }
  syncNameField();
 }
 function generateLink(){
- const p=document.getElementById('adminPerson').value;if(!p)return alert('Select a Resource Person.');
+ const p=document.getElementById('adminPerson').value.trim();if(!p)return alert('Type the speaker’s full name.');
  const link=location.href.split('?')[0]+'?rp='+encodeURIComponent(p);
- document.getElementById('personalLink').value=link;document.getElementById('adminStatus').textContent='Personal link generated.';
+ document.getElementById('personalLink').value=link;document.getElementById('adminStatus').textContent='Personal link generated for '+p+'.';
 }
 async function copyLink(){const x=document.getElementById('personalLink').value;if(!x)return alert('Generate the link first.');await navigator.clipboard.writeText(x);document.getElementById('adminStatus').textContent='Link copied.'}
 async function copyInvitation(){
- const p=document.getElementById('adminPerson').value,x=document.getElementById('personalLink').value;if(!p)return alert('Select a Resource Person.');if(!x){generateLink();return}
+ const p=document.getElementById('adminPerson').value.trim(),x=document.getElementById('personalLink').value;if(!p)return alert('Type the speaker’s full name.');if(!x){generateLink();return}
  const m=`Subject: Invitation – KVS Music Teacher Training | Resource Person Availability
 
 Dear ${p},
